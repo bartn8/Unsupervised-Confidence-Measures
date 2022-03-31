@@ -1,6 +1,8 @@
 #ifndef _CONFIDENCE_MEASURES_UTILITY
 #define _CONFIDENCE_MEASURES_UTILITY
 
+#define OPENCV_TRAITS_ENABLE_DEPRECATED
+
 #include "DSI.hpp"
 #include "stereo_matching.hpp"
 #include <fstream>

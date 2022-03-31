@@ -19,7 +19,7 @@ bool exists(string filePath)
 	if(stat(filePath.c_str(),&st) == 0)
 		if(st.st_mode & S_IFDIR != 0)
 			return true;
-	else false;
+	return false;
 }
 
 
@@ -77,15 +77,15 @@ int main(int argc, const char** argv)
 	/***************************************************************************************************/
 
 	//read images
-	Mat image_0 = imread(left_path, CV_LOAD_IMAGE_UNCHANGED);
-	Mat image_1 = imread(right_path, CV_LOAD_IMAGE_UNCHANGED);
+	Mat image_0 = imread(left_path, cv::IMREAD_UNCHANGED);
+	Mat image_1 = imread(right_path, cv::IMREAD_UNCHANGED);
 
 	//grayscale
 	Mat gray_0, gray_1;
 	if(image_0.type() == CV_8UC3 && image_1.type() == CV_8UC3)
 	{
-		cvtColor(image_0, gray_0, CV_BGR2GRAY);
-		cvtColor(image_1, gray_1, CV_BGR2GRAY);
+		cvtColor(image_0, gray_0, cv::COLOR_BGR2GRAY);
+		cvtColor(image_1, gray_1, cv::COLOR_BGR2GRAY);
 	}
 	else
 	{

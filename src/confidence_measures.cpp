@@ -998,7 +998,7 @@ void horizontal_gradient
 
 	//convert the image to grayscale
 	if (left_stereo.getMat().channels() > 1)
-		cvtColor(left_stereo, _left_stereo_gray, CV_BGR2GRAY);
+		cvtColor(left_stereo, _left_stereo_gray, cv::COLOR_BGR2GRAY);
 	else
 		_left_stereo_gray = left_stereo.getMat().clone();
 	
@@ -1276,7 +1276,7 @@ void distance_to_border
 		}
 	}
 
-	distanceTransform(_border_map, _confidence_map, CV_DIST_L2, 3);
+	distanceTransform(_border_map, _confidence_map, cv::DIST_L2, 3);
 }
 
 void distance_to_left_border
@@ -1326,7 +1326,7 @@ void compute_DD
 	_dst.create(_image.size(), _image.depth());
 
 	if (_image.channels() > 1)
-	    cvtColor(_image, _image_gray, CV_BGR2GRAY);
+	    cvtColor(_image, _image_gray, cv::COLOR_BGR2GRAY);
 	else
 	    _image_gray = _image.clone();
 
@@ -1337,7 +1337,7 @@ void compute_DD
 	_image.copyTo(_dst, _edges);
 
 	threshold(_dst, _dst, 0, 255, 1);
-	distanceTransform(_dst, confidence_map, CV_DIST_L2, 3);
+	distanceTransform(_dst, confidence_map, cv::DIST_L2, 3);
 }
 
 //2.9 Based on disparity map

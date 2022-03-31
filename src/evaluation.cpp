@@ -222,7 +222,7 @@ void eval_and_print
 ){
 	//eval
 	float density, err, tot_positive, tot_negative, false_positive, true_negative;
-	Mat groundtruth = imread(gt_path, CV_LOAD_IMAGE_UNCHANGED), error_map;
+	Mat groundtruth = imread(gt_path, cv::IMREAD_UNCHANGED), error_map;
 	groundtruth.convertTo(groundtruth, CV_32F);
 	groundtruth = groundtruth / (float)scale;
 
