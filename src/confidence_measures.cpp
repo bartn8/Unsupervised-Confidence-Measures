@@ -1381,12 +1381,14 @@ void fn_confidence_measure
 (
 	InputArray image_L, 
 	InputArray image_R, 
+	InputArray disparity_L2R,
+	InputArray disparity_R2L,
 	_DSI dsi_LR, 
+	_DSI dsi_RL, 
 	_DSI dsi_LL, 
 	_DSI dsi_RR, 
 	int bad, 
 	vector<string> choices, 
-	OutputArray disparity_map, 
 	vector<string> &methods, 
 	OutputArrayOfArrays confidences
 ){
@@ -1412,24 +1414,20 @@ void fn_confidence_measure
 	vector<Mat> costs_LL = dsi_LL.values;
 	vector<Mat> costs_RR = dsi_RR.values;
 
-	//generate right dsi.
-	cout  << " - generate right dsi..." << endl;
-	_DSI dsi_RL = DSI_left2right(dsi_LR);
-
-	//compute left and right disparity maps
-	cout  << " - compute left and right disparity maps..." << endl;
-	Mat disparity_L2R = disparity_map_L2R(dsi_LR);
-	Mat disparity_R2L = disparity_map_R2L(dsi_LR);
-
 	//compute c_1, c_2, c^_2 in the paper as well as sum of matching costs and
 	//number of inflection points(NOI).
 	cout  << " - compute c_1, c_2, c^_2 in the paper as well as sum of matching costs..." << endl;
+	
 	vector<Mat> local_minima;
-	Mat c1, c1_idx, c2, c2_idx, c_hat_2, c_hat_2_idx, c_sum, NOI, c1_R; 
+	Mat c1, c1_idx, c2, c2_idx, c_hat_2, c_hat_2_idx, c_sum, NOI; 
+
 	compute_base_costs(dsi_LR.values, c1, c1_idx, c2, c2_idx, c_hat_2, c_hat_2_idx, c_sum, NOI, local_minima);
 
 	//compute minimum right to left
 	cout << " - compute minimum right to left..." << endl;
+	
+	Mat c1_R;
+	
 	minimum(dsi_RL.values, c1_R);
 
 	//computation
@@ -1818,7 +1816,4 @@ void fn_confidence_measure
 
 	for (int i = 0; i < _confidences.size(); i++)
 		confidences.getMatRef(i) = _confidences[i];
-	
-	//disparity map 
-	disparity_map.getMatRef() = disparity_L2R;
 }
