@@ -16,6 +16,20 @@
 
 
 extern "C" {
+    //https://www.techiedelight.com/split-string-cpp-using-delimiter/
+    void tokenize(std::string const &str, const char delim,
+                std::vector<std::string> &out)
+    {
+        size_t start;
+        size_t end = 0;
+    
+        while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
+        {
+            end = str.find(delim, start);
+            out.push_back(str.substr(start, end - start));
+        }
+    }
+
     static PyObject *_confidence_measure(PyObject *self, PyObject *args)
     {
         //Input params
@@ -27,55 +41,105 @@ extern "C" {
         _DSI dsi_RL;
         _DSI dsi_LL;
         _DSI dsi_RR;
-        int bad;
+        uint32 bad;
         uint32 width, height;
         uint32 dmin, dmax;
         float32 threshold; 
-        std::vector<std::string> choices_positive;
-        std::vector<std::string> choices_negative;
+        char *choices_positive_ptr, *choices_negative_ptr;
 
         //Uso funzione dissimilarità (Census)
         bool similarity = 0;
 
         //negative+positive
+        std::vector<std::string> choices_positive;
+        std::vector<std::string> choices_negative;
         std::vector<std::string> choices;
 
+        //Tmp strings
+        std::string choices_positive_str
+        std::string choices_negative_str;
+        
         //Output
 	    std::vector<cv::Mat> confidences;
 	    std::vector<std::string> confidence_names; 
         
-        PyObject *_sourcearg=NULL, *_destarg=NULL;
-        PyObject *_source=NULL, *_dest=NULL;
+        //In vars
 
-        //left, right, displ, dispr, dsilr, dsirl, dsill, dsirr, bad, width, height, dmin, dmax, threshold, choices_pos, choices_neg
+        PyObject *_leftarg = NULL, *_rightarg = NULL;
+        PyObject *_dleftarg = NULL, *_drightarg = NULL;
+        PyObject *_dsilrarg = NULL, *_dsirlarg = NULL;
+        PyObject *_dsirrarg = NULL, *_dsillarg = NULL;
 
-        if (!PyArg_ParseTuple(args, "O!O!II", &PyArray_Type, &_sourcearg,
-         &PyArray_Type, &_destarg, &width, &height)) return NULL;
+        PyObject *_left = NULL, *_right = NULL;
+        PyObject *_dleft = NULL, *_dright = NULL;
+        PyObject *_dsilr = NULL, *_dsirl = NULL;
+        PyObject *_dsirr = NULL, *_dsill = NULL;
 
-        if(width % 16 != 0){
-            PyErr_Format(PyExc_TypeError,
-                     "Width must be a multiple of 16 (%ldx%ld)", width, height);
-            goto fail;
-        }
+        //Out vars
+        PyObject *_confidencesarg = NULL, *_confidences = NULL;
 
-        _source = PyArray_FROM_OTF(_sourcearg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
-        if (_source == NULL) goto fail;
+        //confidences, left, right, displ, dispr, dsilr, dsirl, dsill, dsirr, bad, width, height, dmin, dmax, threshold, choices_pos, choices_neg
 
-        //TODO: vedere se necessario o basta NPY_ARRAY_IN_ARRAY
+        if (!PyArg_ParseTuple(args, "O!O!O!O!O!O!O!O!O!IIIIIIss", 
+         &PyArray_Type, &_confidencesarg,
+         &PyArray_Type, &_leftarg,
+         &PyArray_Type, &_rightarg,
+         &PyArray_Type, &_dleftarg,
+         &PyArray_Type, &_drightarg,
+         &PyArray_Type, &_dsilrarg,
+         &PyArray_Type, &_dsirlarg,
+         &PyArray_Type, &_dsirrarg,
+         &PyArray_Type, &_dsillarg,
+          &bad, &width, &height, &dmin, &dmax, &threshold, choices_positive_ptr, choices_negative_ptr)) return NULL;
+
+        
         #if NPY_API_VERSION >= 0x0000000c
-            _dest = PyArray_FROM_OTF(_destarg, NPY_UINT, NPY_ARRAY_INOUT_ARRAY2);
+            _confidences = PyArray_FROM_OTF(_confidencesarg, NPY_FLOAT32, NPY_ARRAY_INOUT_ARRAY2);
         #else
-            _dest = PyArray_FROM_OTF(_destarg, NPY_UINT, NPY_ARRAY_INOUT_ARRAY);
+            _confidences = PyArray_FROM_OTF(_confidencesarg, NPY_FLOAT32, NPY_ARRAY_INOUT_ARRAY);
         #endif
+        if (_confidences == NULL) goto fail;
 
-        if (_dest == NULL) goto fail;
+        _left = PyArray_FROM_OTF(_leftarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_left == NULL) goto fail;
 
-        source = (uint8*) PyArray_DATA(_source);
-        dest = (uint32*) PyArray_DATA(_dest);
+        _right = PyArray_FROM_OTF(_rightarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_right == NULL) goto fail;
 
-        //Need another array because memory aligment in SSE is different.
-        source_mm = (uint8*)_mm_malloc(width*height*sizeof(uint8), 16);
-        dest_mm = (uint32*)_mm_malloc(width*height*sizeof(uint32), 16);
+        _dleft = PyArray_FROM_OTF(_dleftarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_dleft == NULL) goto fail;
+
+        _dright = PyArray_FROM_OTF(_drightarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_dright == NULL) goto fail;
+        
+        _dsilr = PyArray_FROM_OTF(_dsilrarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_dsilr == NULL) goto fail;
+
+        _dsirl = PyArray_FROM_OTF(_dsirlarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_dsirl == NULL) goto fail;
+
+        _dsirr = PyArray_FROM_OTF(_dsirrarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_dsirr == NULL) goto fail;
+
+        _dsill = PyArray_FROM_OTF(_dsillarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        if (_dsill == NULL) goto fail;                
+
+        gray_0 = cv::Mat(height, width, cv::CV_8U, (uint8*) PyArray_DATA(_left));
+        gray_1 = cv::Mat(height, width, cv::CV_8U, (uint8*) PyArray_DATA(_left));
+        
+
+        //Choices parsing
+        choices_negative_str = std::string(choices_negative_ptr);
+        tokenize(choices_negative_str, ' ', choices_negative);
+
+        choices_positive_str = std::string(choices_positive_ptr);
+        tokenize(choices_positive_str, ' ', choices_positive);
+
+        //Matrix creation
+
+        //Penalizzare i rossi
+        //Confidenza binaria o flottante? Test
+        
 
         for(uint32 y = 0; y < height; y++){
             for(uint32 x = 0; x < width; x++){
