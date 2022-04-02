@@ -2,6 +2,7 @@
 #define DSI_H
 
 #include <opencv2/opencv.hpp>
+#include "common_types.h"
 
 typedef struct _DSI
 {
@@ -22,6 +23,16 @@ _DSI DSI_init
 	int d_min, 
 	int d_max, 
 	bool similarity
+);
+
+_DSI DSI_init_frombuffer
+(
+	int height, 
+	int width, 
+	int d_min, 
+	int d_max, 
+	bool similarity,
+	float32 *buffer
 );
 
 _DSI DSI_left2right

@@ -88,8 +88,8 @@ extern "C" {
          &PyArray_Type, &_drightarg,
          &PyArray_Type, &_dsilrarg,
          &PyArray_Type, &_dsirlarg,
-         &PyArray_Type, &_dsirrarg,
          &PyArray_Type, &_dsillarg,
+         &PyArray_Type, &_dsirrarg,
           &bad, &width, &height, &dmin, &dmax, &threshold, choices_positive_ptr, choices_negative_ptr)) return NULL;
 
         
@@ -106,27 +106,32 @@ extern "C" {
         _right = PyArray_FROM_OTF(_rightarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
         if (_right == NULL) goto fail;
 
-        _dleft = PyArray_FROM_OTF(_dleftarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        _dleft = PyArray_FROM_OTF(_dleftarg, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
         if (_dleft == NULL) goto fail;
 
-        _dright = PyArray_FROM_OTF(_drightarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        _dright = PyArray_FROM_OTF(_drightarg, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
         if (_dright == NULL) goto fail;
         
-        _dsilr = PyArray_FROM_OTF(_dsilrarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        _dsilr = PyArray_FROM_OTF(_dsilrarg, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
         if (_dsilr == NULL) goto fail;
 
-        _dsirl = PyArray_FROM_OTF(_dsirlarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
+        _dsirl = PyArray_FROM_OTF(_dsirlarg, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
         if (_dsirl == NULL) goto fail;
 
-        _dsirr = PyArray_FROM_OTF(_dsirrarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
-        if (_dsirr == NULL) goto fail;
+        _dsill = PyArray_FROM_OTF(_dsillarg, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+        if (_dsill == NULL) goto fail;   
 
-        _dsill = PyArray_FROM_OTF(_dsillarg, NPY_UBYTE, NPY_ARRAY_IN_ARRAY);
-        if (_dsill == NULL) goto fail;                
+        _dsirr = PyArray_FROM_OTF(_dsirrarg, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+        if (_dsirr == NULL) goto fail;             
 
-        gray_0 = cv::Mat(height, width, cv::CV_8U, (uint8*) PyArray_DATA(_left));
-        gray_1 = cv::Mat(height, width, cv::CV_8U, (uint8*) PyArray_DATA(_left));
-        
+        gray_0 = cv::Mat(height, width, CV_8U, (uint8*) PyArray_DATA(_left));
+        gray_1 = cv::Mat(height, width, CV_8U, (uint8*) PyArray_DATA(_right));
+        disparity_L2R = cv::Mat(height, width, CV_32F, (float32*) PyArray_DATA(_dleft));
+        disparity_R2L = cv::Mat(height, width, CV_32F, (float32*) PyArray_DATA(_dright));
+        dsi_LR = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsilr));
+        dsi_RL = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsirl));
+        dsi_LL = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsill));
+        dsi_RR = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsirr));
 
         //Choices parsing
         choices_negative_str = std::string(choices_negative_ptr);
@@ -135,37 +140,31 @@ extern "C" {
         choices_positive_str = std::string(choices_positive_ptr);
         tokenize(choices_positive_str, ' ', choices_positive);
 
-        //Matrix creation
+        std::copy(choices_positive.begin(), choices_positive.end(), std::back_inserter(choices));
+	    std::copy(choices_negative.begin(), choices_negative.end(), std::back_inserter(choices));
+	    std::sort(choices.begin(), choices.end());
+	    choices.erase(std::unique(choices.begin(), choices.end()), choices.end());
 
         //Penalizzare i rossi
         //Confidenza binaria o flottante? Test
         
+        fn_confidence_measure(gray_0, gray_1, disparity_L2R, disparity_R2L, dsi_LR, dsi_RL, dsi_LL, dsi_RR, bad, choices, confidence_names, confidences);
 
-        for(uint32 y = 0; y < height; y++){
-            for(uint32 x = 0; x < width; x++){
-                source_mm[y*width+x] = source[y*width+x];
-            }
-        }
-
-        census5x5_SSE(source_mm, dest_mm, width, height);
-
-        _mm_free(source_mm);
-        
-        for(uint32 y = 0; y < height; y++){
-            for(uint32 x = 0; x < width; x++){
-                dest[y*width+x] = dest_mm[y*width+x];
-            }
-        }
-        
-        _mm_free(dest_mm);
-
-        Py_DECREF(_source);
-        
         #if NPY_API_VERSION >= 0x0000000c
-            PyArray_ResolveWritebackIfCopy((PyArrayObject*)_dest);
+            PyArray_ResolveWritebackIfCopy((PyArrayObject*)_confidences);
         #endif
+        Py_DECREF(_confidences);
+
+        Py_DECREF(_left);
+        Py_DECREF(_right);
+        Py_DECREF(_dleft);
+        Py_DECREF(_dright);
+        Py_DECREF(_dsilr);
+        Py_DECREF(_dsirl);
+        Py_DECREF(_dsill);
+        Py_DECREF(_dsirr);
         
-        Py_DECREF(_dest);
+
         Py_INCREF(Py_None);
         return Py_None;
 

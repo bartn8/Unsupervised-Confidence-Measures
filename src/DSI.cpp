@@ -22,6 +22,33 @@ _DSI DSI_init(int height, int width, int d_min, int d_max,  bool similarity)
 	return DSI;
 }
 
+_DSI DSI_init_frombuffer
+(
+	int height, 
+	int width, 
+	int d_min, 
+	int d_max, 
+	bool similarity,
+	float32 *buffer
+)
+{
+	struct _DSI DSI;
+
+	DSI.height = height;
+	DSI.width = width;
+	DSI.d_min = d_min;
+	DSI.d_max = d_max;
+	DSI.num_disp = d_max - d_min + 1;
+	DSI.similarity = similarity;
+
+	for (int d = 0; d < d_max - d_min + 1; d++)
+	{
+		DSI.values.push_back(Mat(height, width, CV_32F, buffer + (d*width*height)));
+	}
+
+	return DSI;
+}
+
 _DSI DSI_left2right(_DSI DSI_L)
 {
 	int height = DSI_L.height;

@@ -9,3 +9,5 @@ myoutput/
 pyUCM.cpython-39-x86_64-linux-gnu.so
 build/
 disp1.png
+dist/
+pyUCM.egg-info/
