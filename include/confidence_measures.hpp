@@ -374,12 +374,14 @@ void fn_confidence_measure
 (
 	InputArray image_L, 
 	InputArray image_R, 
+	InputArray disparity_L2R,
+	InputArray disparity_R2L,
 	_DSI dsi_LR, 
+	_DSI dsi_RL, 
 	_DSI dsi_LL, 
 	_DSI dsi_RR, 
 	int bad, 
 	vector<string> choices, 
-	OutputArray disparity_map, 
 	vector<string> &methods, 
 	OutputArrayOfArrays confidences
 );

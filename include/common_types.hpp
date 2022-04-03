@@ -1,5 +1,5 @@
-#ifndef DSI_H
-#define DSI_H
+#ifndef COMMON_TYPES_H
+#define COMMON_TYPES_H
 
 #include <stdint.h>
 

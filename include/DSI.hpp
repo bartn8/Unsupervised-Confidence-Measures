@@ -2,7 +2,7 @@
 #define DSI_H
 
 #include <opencv2/opencv.hpp>
-#include "common_types.h"
+#include "common_types.hpp"
 
 typedef struct _DSI
 {

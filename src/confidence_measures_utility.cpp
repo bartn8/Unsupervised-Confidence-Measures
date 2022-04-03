@@ -221,7 +221,7 @@ void inflections
 	//local minima
 	local_minima.create(_local_minima.size(), 1, Mat(_local_minima).type());
 
-	for (int i = 0; i < _local_minima.size(); i++)
+	for (vector<Mat>::size_type i = 0; i < _local_minima.size(); i++)
 	{
 		local_minima.getMatRef(i) = _local_minima[i];
 	}
@@ -332,7 +332,7 @@ vector<Mat> normalize(InputArrayOfArrays input)
 	vector<Mat> _normalized_vector, _input;
 	input.getMatVector(_input);
 
-	for (int d = 0; d < _input.size(); d++)
+	for (vector<Mat>::size_type d = 0; d < _input.size(); d++)
 	{
 		Mat _normalized;
 		normalize(_input[d], _normalized, 0, 1, NORM_MINMAX, CV_32F);
@@ -351,7 +351,7 @@ vector<Mat> copy(vector<Mat> values)
 {
 	vector<Mat> _copy;
 
-	for (int d = 0; d < values.size(); d++)
+	for (vector<Mat>::size_type d = 0; d < values.size(); d++)
 	{
 		Mat c; values[d].copyTo(c);
 		_copy.push_back(c);

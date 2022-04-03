@@ -76,7 +76,7 @@ void curvature
 
 	vector<Mat> _costs; costs.getMatVector(_costs);
 
-	int d1;
+	vector<Mat>::size_type d1;
 	float minimum, add1, add2;
 
 	for (int row = 0; row < height; row++)
@@ -126,7 +126,7 @@ void local_curve
 
 	vector<Mat> _costs; costs.getMatVector(_costs);
 
-	int d1;
+	vector<Mat>::size_type d1;
 	float minimum, add1, add2, max;
 
 	for (int row = 0; row < height; row++)
@@ -537,7 +537,7 @@ void maximum_likelihood_measure
 		{
 			float den = 0;
 
-			for (int d = 0; d < _costs.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs.size(); d++)
 			{
 				float value = _costs[d].ptr<float>(row)[col];
 
@@ -577,7 +577,7 @@ void attainable_maximum_likelihood
 			float c_1 = _c1.ptr<float>(row)[col];
 			float den = 0;
 
-			for (int d = 0; d < _costs.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs.size(); d++)
 			{
 				float value = _costs[d].ptr<float>(row)[col];
 
@@ -612,14 +612,14 @@ void negative_entropy_measure
 			float negative_entropy = 0;
 			float den = 0;
 
-			for (int d = 0; d < _costs.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs.size(); d++)
 			{
 				float value = _costs[d].ptr<float>(row)[col];
 
 				den += exp(-value); 
 			}
 			
-			for (int d = 0; d < _costs.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs.size(); d++)
 			{
 				float value = _costs[d].ptr<float>(row)[col];
 
@@ -654,7 +654,7 @@ void perturbation_measure
 	for (int row = 0; row < height; row++)
 	{
 		float* c1_ptr = _c1.ptr<float>(row);
-		float* confidence_map_ptr = _confidence_map.ptr<float>(row);
+		//float* confidence_map_ptr = _confidence_map.ptr<float>(row);
 		uchar* c1_idx_ptr = _c1_idx.ptr<uchar>(row);
 
 		for (int col = 0; col < width; col++)
@@ -663,7 +663,7 @@ void perturbation_measure
 			float c_1 = c1_ptr[col];
 			uchar d_1 = c1_idx_ptr[col];
 			
-			for (int d = 0; d < _costs.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs.size(); d++)
 			{
 				float c_d = _costs[d].ptr<float>(row)[col];
 				float diff = (c_1 - c_d);
@@ -1060,8 +1060,8 @@ void zero_mean_sum_of_absolute_differences
 		float* mean_L_ptr = _mean_L.ptr<float>(row);
 		float* mean_R_ptr = _mean_R.ptr<float>(row);
 		float* abs_box_diff_ptr = _abs_box_diff.ptr<float>(row);
-		float* left_ptr = _left.ptr<float>(row);
-		float* right_ptr = _right.ptr<float>(row);
+		//float* left_ptr = _left.ptr<float>(row);
+		//float* right_ptr = _right.ptr<float>(row);
 		float* confidence_map_ptr = _confidence_map.ptr<float>(row);
 		uchar* index_ptr = _c1_idx.ptr<uchar>(row);
 
@@ -1103,11 +1103,11 @@ void distinctiveness
 		{
 			minimum = FLT_MAX;
 
-			for (int d = 0; d < _costs_LL.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs_LL.size(); d++)
 			{
 				float value = _costs_LL[d].ptr<float>(row)[col];
 
-				if (value < minimum && value >= 0 && d != - d_min)
+				if (value < minimum && value >= 0 && d != - ((vector<Mat>::size_type)d_min))
 				{
 					minimum = value;
 				}
@@ -1185,11 +1185,13 @@ void self_aware_matching
 	float sum, sum_mean_LR, sum_mean_LL, 
 	      sum_deviation_LR, sum_deviation_LL,
               value_LR, value_LL,
-	      mean_LR, mean_LL,
-              standard_deviation_LR, standard_deviation_LL;
+	      mean_LR, mean_LL;
 
-	int count_LR, count_LL, 
-	    num_disp = d_max - d_min + 1;
+	//float standard_deviation_LR;
+	//float standard_deviation_LL;
+
+	int count_LR, count_LL;
+	//int num_disp = d_max - d_min + 1;
 
 	for (int row = 0; row < height; row++)
 	{
@@ -1204,7 +1206,7 @@ void self_aware_matching
 			int offset = - d_min - d1; 
 
 			//mean computation
-			for (int d = 0; d < _costs.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs.size(); d++)
 			{
 				if (d + offset < _costs_LL.size() && d + offset >= 0)
 				{
@@ -1224,7 +1226,7 @@ void self_aware_matching
 			//standard deviation and SAMM computation
 			sum = 0, sum_deviation_LR = 0, sum_deviation_LL = 0;
 
-			for (int d = 0; d < _costs.size(); d++)
+			for (vector<Mat>::size_type d = 0; d < _costs.size(); d++)
 			{
 				if (d + offset < _costs_LL.size() && d + offset >= 0)
 				{
@@ -1238,8 +1240,8 @@ void self_aware_matching
 				}
 			}
 
-			standard_deviation_LR = sqrt(sum_deviation_LR);
-			standard_deviation_LL = sqrt(sum_deviation_LL);
+			//standard_deviation_LR = sqrt(sum_deviation_LR);
+			//standard_deviation_LL = sqrt(sum_deviation_LL);
 
 			confidence_map_ptr[col] = sum / sqrt(sum_deviation_LR * sum_deviation_LL);
 		}
@@ -1407,9 +1409,9 @@ void fn_confidence_measure
 	//base info
 	int height = dsi_LR.height;
 	int width = dsi_LR.width;
-	int d_min = dsi_LR.d_min;
-	int d_max = dsi_LR.d_max;
-	int num_disp = dsi_LR.num_disp;
+	//int d_min = dsi_LR.d_min;
+	//int d_max = dsi_LR.d_max;
+	//int num_disp = dsi_LR.num_disp;
 	vector<Mat> costs = dsi_LR.values;
 	vector<Mat> costs_LL = dsi_LL.values;
 	vector<Mat> costs_RR = dsi_RR.values;
@@ -1814,6 +1816,6 @@ void fn_confidence_measure
 	//confidence maps
 	confidences.create(_confidences.size(), 1, Mat(_confidences).type());
 
-	for (int i = 0; i < _confidences.size(); i++)
+	for (vector<Mat>::size_type i = 0; i < _confidences.size(); i++)
 		confidences.getMatRef(i) = _confidences[i];
 }

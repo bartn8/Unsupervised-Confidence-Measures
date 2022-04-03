@@ -12,6 +12,8 @@
 #include <smmintrin.h> // intrinsics
 #include <emmintrin.h>
 
+#include "generate_samples.hpp"
+#include "confidence_measures.hpp"
 #include "DSI.hpp"
 
 
@@ -45,7 +47,7 @@ extern "C" {
         uint32 width, height;
         uint32 dmin, dmax;
         float32 threshold; 
-        char *choices_positive_ptr, *choices_negative_ptr;
+        const char *choices_positive_ptr, *choices_negative_ptr;
 
         //Uso funzione dissimilarità (Census)
         bool similarity = 0;
@@ -56,10 +58,13 @@ extern "C" {
         std::vector<std::string> choices;
 
         //Tmp strings
-        std::string choices_positive_str
+        std::string choices_str;
+        std::string choices_positive_str;
         std::string choices_negative_str;
         
         //Output
+        cv::Mat positive_samples, negative_samples;
+        cv::Mat rgb;
 	    std::vector<cv::Mat> confidences;
 	    std::vector<std::string> confidence_names; 
         
@@ -78,9 +83,13 @@ extern "C" {
         //Out vars
         PyObject *_confidencesarg = NULL, *_confidences = NULL;
 
+        //PyObject *_returnconfidence; 
+        PyObject *_returnchoices; 
+        //PyObject *_returntuple; 
+
         //confidences, left, right, displ, dispr, dsilr, dsirl, dsill, dsirr, bad, width, height, dmin, dmax, threshold, choices_pos, choices_neg
 
-        if (!PyArg_ParseTuple(args, "O!O!O!O!O!O!O!O!O!IIIIIIss", 
+        if (!PyArg_ParseTuple(args, "O!O!O!O!O!O!O!O!O!IIIIIfss", 
          &PyArray_Type, &_confidencesarg,
          &PyArray_Type, &_leftarg,
          &PyArray_Type, &_rightarg,
@@ -90,7 +99,7 @@ extern "C" {
          &PyArray_Type, &_dsirlarg,
          &PyArray_Type, &_dsillarg,
          &PyArray_Type, &_dsirrarg,
-          &bad, &width, &height, &dmin, &dmax, &threshold, choices_positive_ptr, choices_negative_ptr)) return NULL;
+          &bad, &width, &height, &dmin, &dmax, &threshold, &choices_positive_ptr, &choices_negative_ptr)) return NULL;
 
         
         #if NPY_API_VERSION >= 0x0000000c
@@ -128,10 +137,10 @@ extern "C" {
         gray_1 = cv::Mat(height, width, CV_8U, (uint8*) PyArray_DATA(_right));
         disparity_L2R = cv::Mat(height, width, CV_32F, (float32*) PyArray_DATA(_dleft));
         disparity_R2L = cv::Mat(height, width, CV_32F, (float32*) PyArray_DATA(_dright));
-        dsi_LR = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsilr));
-        dsi_RL = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsirl));
-        dsi_LL = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsill));
-        dsi_RR = DSI_init_frombuffer(height, width, dmin, dmax, 0, (float32*) PyArray_DATA(_dsirr));
+        dsi_LR = DSI_init_frombuffer(height, width, dmin, dmax, similarity, (float32*) PyArray_DATA(_dsilr));
+        dsi_RL = DSI_init_frombuffer(height, width, dmin, dmax, similarity, (float32*) PyArray_DATA(_dsirl));
+        dsi_LL = DSI_init_frombuffer(height, width, dmin, dmax, similarity, (float32*) PyArray_DATA(_dsill));
+        dsi_RR = DSI_init_frombuffer(height, width, dmin, dmax, similarity, (float32*) PyArray_DATA(_dsirr));
 
         //Choices parsing
         choices_negative_str = std::string(choices_negative_ptr);
@@ -149,6 +158,19 @@ extern "C" {
         //Confidenza binaria o flottante? Test
         
         fn_confidence_measure(gray_0, gray_1, disparity_L2R, disparity_R2L, dsi_LR, dsi_RL, dsi_LL, dsi_RR, bad, choices, confidence_names, confidences);
+	    generate_training_samples(confidences, disparity_L2R, threshold, confidence_names, choices_positive, choices_negative, positive_samples, negative_samples);
+	    cv::imwrite("positive_samples.png", positive_samples);
+	    cv::imwrite("negative_samples.png", negative_samples);
+        
+        //Pass confidences
+
+
+        //Build return choices string
+        for(std::string confidence_name : confidence_names){
+            choices_str = choices_str + " " + confidence_name;
+        }
+        
+        _returnchoices = PyUnicode_DecodeUTF8(choices_str.c_str()+1, choices_str.size(),NULL);
 
         #if NPY_API_VERSION >= 0x0000000c
             PyArray_ResolveWritebackIfCopy((PyArrayObject*)_confidences);
@@ -164,19 +186,23 @@ extern "C" {
         Py_DECREF(_dsill);
         Py_DECREF(_dsirr);
         
-
-        Py_INCREF(Py_None);
-        return Py_None;
+        
+        return _returnchoices;
 
         fail:
-
-        Py_XDECREF(_source);
-
         #if NPY_API_VERSION >= 0x0000000c
-            PyArray_DiscardWritebackIfCopy((PyArrayObject*)_dest);
+            PyArray_DiscardWritebackIfCopy((PyArrayObject*)_confidences);
         #endif
+        Py_XDECREF(_confidences);
 
-        Py_XDECREF(_dest);
+        Py_XDECREF(_left);
+        Py_XDECREF(_right);
+        Py_XDECREF(_dleft);
+        Py_XDECREF(_dright);
+        Py_XDECREF(_dsilr);
+        Py_XDECREF(_dsirl);
+        Py_XDECREF(_dsill);
+        Py_XDECREF(_dsirr);
 
         return NULL;
     }

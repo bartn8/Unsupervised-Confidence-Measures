@@ -110,7 +110,7 @@ void generate_training_samples
 
 	vector<Mat> _positive_training_samples, _negative_training_samples;
 
-	for(int n = 0; n < _confidence_measures.size(); n++)
+	for(std::vector<cv::Mat>::size_type n = 0; n < _confidence_measures.size(); n++)
 	{
 		Mat _confidence = _confidence_measures.at(n),
 		    _positive_samples, _negative_samples;
@@ -142,14 +142,14 @@ void generate_training_samples
 		{
 			float P = 255, N = 255;
 
-			for(int n = 0; n < _positive_training_samples.size(); n++)
+			for(std::vector<cv::Mat>::size_type n = 0; n < _positive_training_samples.size(); n++)
 			{
 				if(!(_positive_training_samples.at(n).ptr<float>(row)[col] == 255 
 					&& P == 255 && disparity_map_ptr[col]!=0))
 					P = 0;
 			}
 
-			for(int n = 0; n < _negative_training_samples.size(); n++)
+			for(std::vector<cv::Mat>::size_type n = 0; n < _negative_training_samples.size(); n++)
 			{
 				if(disparity_map_ptr[col]==0)
 				{
