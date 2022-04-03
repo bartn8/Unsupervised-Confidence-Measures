@@ -1385,8 +1385,7 @@ void fn_confidence_measure
 	InputArray image_R, 
 	InputArray disparity_L2R,
 	InputArray disparity_R2L,
-	_DSI dsi_LR, 
-	_DSI dsi_RL, 
+	_DSI dsi_LR,  
 	_DSI dsi_LL, 
 	_DSI dsi_RR, 
 	int bad, 
@@ -1415,6 +1414,10 @@ void fn_confidence_measure
 	vector<Mat> costs = dsi_LR.values;
 	vector<Mat> costs_LL = dsi_LL.values;
 	vector<Mat> costs_RR = dsi_RR.values;
+
+	//generate right dsi.
+	cout  << " - generate right dsi..." << endl;
+	_DSI dsi_RL = DSI_left2right(dsi_LR);
 
 	//compute c_1, c_2, c^_2 in the paper as well as sum of matching costs and
 	//number of inflection points(NOI).

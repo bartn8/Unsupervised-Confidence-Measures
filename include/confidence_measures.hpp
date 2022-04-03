@@ -377,7 +377,6 @@ void fn_confidence_measure
 	InputArray disparity_L2R,
 	InputArray disparity_R2L,
 	_DSI dsi_LR, 
-	_DSI dsi_RL, 
 	_DSI dsi_LL, 
 	_DSI dsi_RR, 
 	int bad, 
