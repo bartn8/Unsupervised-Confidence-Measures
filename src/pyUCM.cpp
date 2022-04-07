@@ -63,8 +63,6 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
     //Output
     float32 *psamples;
     float32 *nsamples;
-
-
     
     //In vars
 
@@ -166,7 +164,6 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
             nsamples[y*width+x] = negative_samples.at<float32>(y,x);
         }
     }
-
 
     #if NPY_API_VERSION >= 0x0000000c
         PyArray_ResolveWritebackIfCopy((PyArrayObject*)_pconfidences);

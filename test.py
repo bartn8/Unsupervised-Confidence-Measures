@@ -23,7 +23,7 @@ right = cv2.cvtColor(rightc, cv2.COLOR_BGR2GRAY)
 
 h,w = left.shape[:2]
 h,w = int(h), int(w)
-dispCount = int(128)
+dispCount = int(256)
 
 startTimeSGM = time.time()
 
@@ -42,12 +42,12 @@ costMeasureCensus5x5_xyd_SSE(leftCensus, leftCensus, dsiLL, w, h, dispCount, 4)
 costMeasureCensus5x5_xyd_SSE(rightCensus, rightCensus, dsiRR, w, h, dispCount, 4)
 
 dsiLRAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
-dsiLLAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
-dsiRRAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
+#dsiLLAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
+#dsiRRAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
 
 aggregate_SSE(left, dsiLR, dsiLRAgg, w, h, dispCount, 7, 17, 0.25, 50)
-aggregate_SSE(left, dsiLL, dsiLLAgg, w, h, dispCount, 7, 17, 0.25, 50)
-aggregate_SSE(right, dsiRR, dsiRRAgg, w, h, dispCount, 7, 17, 0.25, 50)
+#aggregate_SSE(left, dsiLL, dsiLLAgg, w, h, dispCount, 7, 17, 0.25, 50)
+#aggregate_SSE(right, dsiRR, dsiRRAgg, w, h, dispCount, 7, 17, 0.25, 50)
 
 dispImgLeft = np.zeros((h,w), dtype=np.float32)
 dispImgRight = np.zeros((h,w), dtype=np.float32)
@@ -63,17 +63,26 @@ dispImgRightfiltered = np.zeros((h,w), dtype=np.float32)
 median3x3_SSE(dispImgLeft, dispImgLeftfiltered, w, h)
 median3x3_SSE(dispImgRight, dispImgRightfiltered, w, h)
 
-bad = 5
+stopTimeSGM = time.time()
 
-dsiLRAgg = dsiLRAgg.astype(np.float32)
-dsiLL = dsiLL.astype(np.float32)
-dsiRR = dsiRR.astype(np.float32)
+bad = 3
+threshold = float(0.3)
+
+dsiLRAgg = np.moveaxis(dsiLRAgg, -1, 0)
+dsiLL = np.moveaxis(dsiLL, -1, 0)
+dsiRR = np.moveaxis(dsiRR, -1, 0)
 
 pconf = np.zeros((h,w), dtype=np.float32)
 nconf = np.zeros((h,w), dtype=np.float32)
 
-confidence_measure(pconf, nconf, left, right, dispImgLeftfiltered, dispImgRightfiltered, dsiLRAgg, dsiLLAgg, dsiRRAgg, bad, w, h, int(0), int(127), float(0.6), "lrc uc dbl apkr med wmn", "lrc uc apkr wmn")
+startTimeUCM = time.time()
 
+confidence_measure(pconf, nconf, left, right, dispImgLeftfiltered, dispImgRightfiltered,
+ dsiLRAgg.astype(np.float32), dsiLL.astype(np.float32), dsiRR.astype(np.float32), bad, w, h, int(0), int(255), threshold, "lrc uc dbl apkr med wmn", "lrc uc apkr wmn")
+
+stopTimeUCM = time.time()
+
+print(f"SGM time: {(stopTimeSGM-startTimeSGM)*1000} ms, UCM time: {(stopTimeUCM-startTimeUCM)*1000} ms")
 
 cv2.imwrite("myoutput/disp1.png", dispImgLeftfiltered.astype(np.uint8))
 cv2.imwrite("myoutput/disp5.png", dispImgRightfiltered.astype(np.uint8))
