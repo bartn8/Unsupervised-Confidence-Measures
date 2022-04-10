@@ -87,6 +87,7 @@ void split
 
 	free(confidence_values);
 	free(rows);
+	free(cols);
 }
 
 void generate_training_samples
