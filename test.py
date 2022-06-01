@@ -84,6 +84,9 @@ stopTimeUCM = time.time()
 
 print(f"SGM time: {(stopTimeSGM-startTimeSGM)*1000} ms, UCM time: {(stopTimeUCM-startTimeUCM)*1000} ms")
 
+print(f"pconf range: {np.unique(pconf)}")
+print(f"nconf range: {np.unique(nconf)}")
+
 cv2.imwrite("myoutput/disp1.png", dispImgLeftfiltered.astype(np.uint8))
 cv2.imwrite("myoutput/disp5.png", dispImgRightfiltered.astype(np.uint8))
 cv2.imwrite("myoutput/positive_samples.png", pconf.astype(np.uint8))
