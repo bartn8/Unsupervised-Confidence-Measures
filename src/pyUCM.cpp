@@ -94,7 +94,24 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
         &PyArray_Type, &_dsirrarg,
         &bad, &width, &height, &dmin, &dmax, &threshold, &choices_positive_ptr, &choices_negative_ptr)) return NULL;
 
+    if(dmin >= dmax){
+        PyErr_Format(PyExc_TypeError,
+                    "Dmin should be < than dmax (%ld < %ld)", dmin, dmax);
+        goto fail;
+    }
     
+    if(threshold < 0){
+        PyErr_Format(PyExc_TypeError,
+                    "binary threshold should be greater than zero (%f)", threshold);
+        goto fail;
+    }
+
+    if(bad <= 0){
+        PyErr_Format(PyExc_TypeError,
+                    "BAD threshold should be greater than zero (%ld)", bad);
+        goto fail;
+    }
+
     #if NPY_API_VERSION >= 0x0000000c
         _pconfidences = PyArray_FROM_OTF(_pconfidencesarg, NPY_FLOAT32, NPY_ARRAY_INOUT_ARRAY2);
     #else

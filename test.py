@@ -12,8 +12,8 @@ def rsgm_crop_left(img):
         img = img[:, c:]
     return img
 
-leftc = cv2.imread(os.path.join(".", "view1.png"), cv2.IMREAD_COLOR)
-rightc = cv2.imread(os.path.join(".", "view5.png"), cv2.IMREAD_COLOR)
+leftc = cv2.imread(os.path.join(".", "im0.png"), cv2.IMREAD_COLOR)
+rightc = cv2.imread(os.path.join(".", "im1.png"), cv2.IMREAD_COLOR)
 
 leftc = rsgm_crop_left(leftc)
 rightc = rsgm_crop_left(rightc)

@@ -189,7 +189,7 @@ void inflections
 			{
 				float central = _costs[d].ptr<float>(row)[col];
 
-				if (central >= 0)
+				if (central >= 0 && d - 1 >= 0 && d+1 < num_disp)
 				{
 					if (d == 0)
 					{
