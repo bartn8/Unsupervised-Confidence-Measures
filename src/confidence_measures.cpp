@@ -1394,9 +1394,9 @@ void fn_confidence_measure
 	OutputArrayOfArrays confidences
 ){
 	//computation
-	cout << string( 2, '\n' ) 
-	     << "***** Compute Base Costs *****" 
-	     << string( 2, '\n' );
+	//cout << string( 2, '\n' ) 
+	//     << "***** Compute Base Costs *****" 
+	//     << string( 2, '\n' );
 
 	//confidence measures 
 	vector<Mat> _confidences;
@@ -1416,12 +1416,12 @@ void fn_confidence_measure
 	vector<Mat> costs_RR = dsi_RR.values;
 
 	//generate right dsi.
-	cout  << " - generate right dsi..." << endl;
+	//cout  << " - generate right dsi..." << endl;
 	_DSI dsi_RL = DSI_left2right(dsi_LR);
 
 	//compute c_1, c_2, c^_2 in the paper as well as sum of matching costs and
 	//number of inflection points(NOI).
-	cout  << " - compute c_1, c_2, c^_2 in the paper as well as sum of matching costs..." << endl;
+	//cout  << " - compute c_1, c_2, c^_2 in the paper as well as sum of matching costs..." << endl;
 	
 	vector<Mat> local_minima;
 	Mat c1, c1_idx, c2, c2_idx, c_hat_2, c_hat_2_idx, c_sum, NOI; 
@@ -1429,22 +1429,22 @@ void fn_confidence_measure
 	compute_base_costs(dsi_LR.values, c1, c1_idx, c2, c2_idx, c_hat_2, c_hat_2_idx, c_sum, NOI, local_minima);
 
 	//compute minimum right to left
-	cout << " - compute minimum right to left..." << endl;
+	//cout << " - compute minimum right to left..." << endl;
 	
 	Mat c1_R;
 	
 	minimum(dsi_RL.values, c1_R);
 
 	//computation
-	cout << string( 2, '\n' ) 
-	<< "***** Confidence Measure  *****" 
-	<< string( 2, '\n' );
+	//cout << string( 2, '\n' ) 
+	//<< "***** Confidence Measure  *****" 
+	//<< string( 2, '\n' );
 
 	// 01. Matching Score Measure (MSM).
 	if (use(choices, "msm") == true)
 	{
 		Mat msm;
-		cout  << " - confidence measure: matching score measure (MSM)" << endl; 
+		//cout  << " - confidence measure: matching score measure (MSM)" << endl; 
 		matching_score_measure(c1, height, width, msm);
 		_confidences.push_back(msm);
 		methods.push_back("msm");
@@ -1454,7 +1454,7 @@ void fn_confidence_measure
 	if (use(choices, "lc") == true)
 	{
 		Mat lc;
-		cout  << " - confidence measure: local curve (LC)" << endl;
+		//cout  << " - confidence measure: local curve (LC)" << endl;
 		local_curve(costs, c1_idx, params.lc_gamma, height, width, lc);
 		_confidences.push_back(lc);
 		methods.push_back("lc");
@@ -1464,7 +1464,7 @@ void fn_confidence_measure
 	if (use(choices, "cur") == true)
 	{
 		Mat cur;
-		cout  << " - confidence measure: curvature (CUR)" << endl;
+		//cout  << " - confidence measure: curvature (CUR)" << endl;
 		curvature(costs, c1_idx, height, width, cur);
 		_confidences.push_back(cur);
 		methods.push_back("cur");
@@ -1474,7 +1474,7 @@ void fn_confidence_measure
 	if (use(choices, "pkr") == true)
 	{
 		Mat pkr;
-		cout  << " - confidence measure: peak ratio (PKR)" << endl;
+		//cout  << " - confidence measure: peak ratio (PKR)" << endl;
 		peak_ratio(c1, c_hat_2, params.pkr_epsilon, height, width, pkr);
 		_confidences.push_back(pkr);
 		methods.push_back("pkr");
@@ -1484,7 +1484,7 @@ void fn_confidence_measure
 	if (use(choices, "pkrn") == true)
 	{
 		Mat pkrn;
-		cout  << " - confidence measure: peak ratio naive (PKRN)" << endl;
+		//cout  << " - confidence measure: peak ratio naive (PKRN)" << endl;
 		peak_ratio(c1, c2, params.pkr_epsilon, height, width, pkrn);
 		_confidences.push_back(pkrn);
 		methods.push_back("pkrn");
@@ -1494,7 +1494,7 @@ void fn_confidence_measure
 	if (use(choices, "apkr") == true)
 	{
 		Mat apkr;
-		cout  << " - confidence measure: average peak ratio (APKR)" << endl;
+		////cout  << " - confidence measure: average peak ratio (APKR)" << endl;
 		average_peak_ratio(costs, c1_idx, c_hat_2_idx, params.apkr_epsilon, params.apkr_radius, height, width, apkr);
 		_confidences.push_back(apkr);
 		methods.push_back("apkr");
@@ -1504,7 +1504,7 @@ void fn_confidence_measure
 	if (use(choices, "apkrn") == true)
 	{
 		Mat apkrn;
-		cout  << " - confidence measure: average peak ratio naive (APKRN)" << endl;
+		//cout  << " - confidence measure: average peak ratio naive (APKRN)" << endl;
 		average_peak_ratio(costs, c1_idx, c2_idx, params.apkr_epsilon, params.apkr_radius, height, width, apkrn);
 		_confidences.push_back(apkrn);
 		methods.push_back("apkrn");
@@ -1514,7 +1514,7 @@ void fn_confidence_measure
 	if (use(choices, "mm") == true)
 	{
 		Mat mm;
-		cout  << " - confidence measure: maximum margin (MM)" << endl;
+		//cout  << " - confidence measure: maximum margin (MM)" << endl;
 		maximum_margin(c1, c_hat_2, height, width, mm);
 		_confidences.push_back(mm);
 		methods.push_back("mm");
@@ -1524,7 +1524,7 @@ void fn_confidence_measure
 	if (use(choices, "mmn") == true)
 	{
 		Mat mmn;
-		cout  << " - confidence measure: maximum margin naive (MMN)" << endl;
+		//cout  << " - confidence measure: maximum margin naive (MMN)" << endl;
 		maximum_margin(c1, c2, height, width, mmn);
 		_confidences.push_back(mmn);
 		methods.push_back("mmn");
@@ -1534,7 +1534,7 @@ void fn_confidence_measure
 	if (use(choices, "nmm") == true)
 	{
 		Mat nmm;
-		cout  << " - confidence measure: nonlinear margin (NMM)" << endl;
+	//cout  << " - confidence measure: nonlinear margin (NMM)" << endl;
 		non_linear_margin(c1, c_hat_2, params.nmm_sigma, height, width, nmm);
 		_confidences.push_back(nmm);
 		methods.push_back("nmm");
@@ -1544,7 +1544,7 @@ void fn_confidence_measure
 	if (use(choices, "nmmn") == true)
 	{
 		Mat nmmn;
-		cout  << " - confidence measure: nonlinear margin naive (NMMN)" << endl;
+	//cout  << " - confidence measure: nonlinear margin naive (NMMN)" << endl;
 		non_linear_margin(c1, c2, params.nmm_sigma, height, width, nmmn);
 		_confidences.push_back(nmmn);
 		methods.push_back("nmmn");
@@ -1554,7 +1554,7 @@ void fn_confidence_measure
 	if (use(choices, "dvm") == true)
 	{
 		Mat dvm;
-		cout  << " - confidence measure: disparity variance measure (DVM)" << endl;
+	//cout  << " - confidence measure: disparity variance measure (DVM)" << endl;
 
 		disparity_variance_measure(disparity_L2R, params.dvm, dvm);
 		_confidences.push_back(dvm);
@@ -1565,7 +1565,7 @@ void fn_confidence_measure
 	if (use(choices, "dam") == true)
 	{
 		Mat dam;
-		cout  << " - confidence measure: disparity ambiguity measure (DAM)" << endl;
+	//cout  << " - confidence measure: disparity ambiguity measure (DAM)" << endl;
 		disparity_ambiguity_measure(c1_idx, c2_idx, height, width, dam);
 		_confidences.push_back(dam);
 		methods.push_back("dam");
@@ -1575,7 +1575,7 @@ void fn_confidence_measure
 	if (use(choices, "mlm") == true)
 	{
 		Mat mlm;
-		cout  << " - confidence measure: maximum likelihood measure (MLM)" << endl;
+	//cout  << " - confidence measure: maximum likelihood measure (MLM)" << endl;
 		maximum_likelihood_measure(costs, c1, params.mlm_sigma, height, width, mlm);
 		_confidences.push_back(mlm);
 		methods.push_back("mlm");
@@ -1585,7 +1585,7 @@ void fn_confidence_measure
 	if (use(choices, "aml") == true)
 	{
 		Mat aml;
-		cout  << " - confidence measure: attainable maximum likelihood (AML)" << endl;
+	//cout  << " - confidence measure: attainable maximum likelihood (AML)" << endl;
 		attainable_maximum_likelihood(costs, c1, params.aml_sigma, height, width, aml);
 		_confidences.push_back(aml);
 		methods.push_back("aml");
@@ -1595,7 +1595,7 @@ void fn_confidence_measure
 	if (use(choices, "nem") == true)
 	{
 		Mat nem;
-		cout  << " - confidence measure: negative entropy (NEM)" << endl;
+	//cout  << " - confidence measure: negative entropy (NEM)" << endl;
 		negative_entropy_measure(costs, height, width, nem);
 		_confidences.push_back(nem);
 		methods.push_back("nem");
@@ -1604,7 +1604,7 @@ void fn_confidence_measure
 	// 17. Number Of Inflections (NOI).
 	if (use(choices, "noi") == true)
 	{
-		cout  << " - confidence measure: number of inflections (NOI)" << endl;
+	//cout  << " - confidence measure: number of inflections (NOI)" << endl;
 		_confidences.push_back(NOI);
 		methods.push_back("noi");
 	}
@@ -1613,7 +1613,7 @@ void fn_confidence_measure
 	if (use(choices, "wmn") == true)
 	{
 		Mat wmn;
-		cout  << " - confidence measure: winner margin (WMN)" << endl;
+	//cout  << " - confidence measure: winner margin (WMN)" << endl;
 		winner_margin(c1, c_hat_2, c_sum, height, width, wmn);
 		_confidences.push_back(wmn);
 		methods.push_back("wmn");
@@ -1623,7 +1623,7 @@ void fn_confidence_measure
 	if (use(choices, "wmnn") == true)
 	{
 		Mat wmnn;
-		cout  << " - confidence measure: winner margin naive (WMNN)" << endl;
+	//cout  << " - confidence measure: winner margin naive (WMNN)" << endl;
 		winner_margin(c1, c2, c_sum, height, width, wmnn);
 		_confidences.push_back(wmnn);
 		methods.push_back("wmnn");
@@ -1633,7 +1633,7 @@ void fn_confidence_measure
 	if (use(choices, "per") == true)
 	{
 		Mat per;
-		cout  << " - confidence measure: perturbation measure (PER)" << endl;
+	//cout  << " - confidence measure: perturbation measure (PER)" << endl;
 		perturbation_measure(costs, c1, c1_idx, params.per_sigma, height, width, per);
 		_confidences.push_back(per);
 		methods.push_back("per");
@@ -1643,7 +1643,7 @@ void fn_confidence_measure
 	if (use(choices, "lrc") == true)
 	{
 		Mat lrc;
-		cout  << " - confidence measure: left right consistency check (LRC)" << endl;
+	//cout  << " - confidence measure: left right consistency check (LRC)" << endl;
 		left_right_consistency_check(disparity_L2R, disparity_R2L, bad, height, width, lrc);
 		_confidences.push_back(lrc);
 		methods.push_back("lrc");
@@ -1653,7 +1653,7 @@ void fn_confidence_measure
 	if (use(choices, "acc") == true)
 	{
 		Mat acc;
-		cout  << " - confidence measure: asymmetric consistency check (ACC)" << endl;
+	//cout  << " - confidence measure: asymmetric consistency check (ACC)" << endl;
 		asymmetric_consistency_check(c1, c1_idx, height, width, acc);
 		_confidences.push_back(acc);
 		methods.push_back("acc");
@@ -1663,7 +1663,7 @@ void fn_confidence_measure
 	if (use(choices, "uc") == true)
 	{
 		Mat uc_binary, uc_occurence, uc_cost;
-		cout  << " - confidence measure: uniqueness constraint (UC)" << endl;
+	//cout  << " - confidence measure: uniqueness constraint (UC)" << endl;
 		uniqueness_constraint(c1, c1_idx, height, width, uc_binary, uc_occurence, uc_cost);
 		_confidences.push_back(uc_binary);
 
@@ -1676,7 +1676,7 @@ void fn_confidence_measure
 	if (use(choices, "lrd") == true)
 	{
 		Mat lrd;
-		cout  << " - confidence measure: left right difference (LRD)" << endl;
+	//cout  << " - confidence measure: left right difference (LRD)" << endl;
 		left_right_difference(c1, c2, c1_R, disparity_L2R, params.lrd_epsilon, height, width, lrd);
 		_confidences.push_back(lrd);
 		methods.push_back("lrd");
@@ -1686,7 +1686,7 @@ void fn_confidence_measure
 	if (use(choices, "hgm") == true)
 	{
 		Mat hgm;
-		cout  << " - confidence measure: horizontal gradient (HGM)" << endl;
+	//cout  << " - confidence measure: horizontal gradient (HGM)" << endl;
 		horizontal_gradient(image_L, hgm);
 		_confidences.push_back(hgm);
 		methods.push_back("hgm");
@@ -1696,7 +1696,7 @@ void fn_confidence_measure
 	if (use(choices, "zsad") == true)
 	{
 		Mat zsad;
-		cout  << " - confidence measure: zero mean sum of absolute difference (ZSAD)" << endl;
+	//cout  << " - confidence measure: zero mean sum of absolute difference (ZSAD)" << endl;
 		zero_mean_sum_of_absolute_differences(image_L, image_R, c1, c1_idx, params.zsad_radius, height, width, zsad);
 		_confidences.push_back(zsad);
 		methods.push_back("zsad");
@@ -1706,7 +1706,7 @@ void fn_confidence_measure
 	if (use(choices, "dts") == true)
 	{
 		Mat dts_L;
-		cout  << " - confidence measure: distinctiveness (DTS)" << endl;
+	//cout  << " - confidence measure: distinctiveness (DTS)" << endl;
 		distinctiveness(costs_LL, dsi_LL.d_min, dsi_LL.d_max, height, width, dts_L);
 		_confidences.push_back(dts_L);
 		methods.push_back("dts");
@@ -1716,7 +1716,7 @@ void fn_confidence_measure
 	if (use(choices, "dsm") == true)
 	{
 		Mat dsm, distinctiveness_R, distinctiveness_L;
-		cout  << " - confidence measure: distinctive similarity measure (DSM)" << endl;
+	//cout  << " - confidence measure: distinctive similarity measure (DSM)" << endl;
 
 		distinctiveness(costs_LL, dsi_LL.d_min, dsi_LL.d_max, height, width, distinctiveness_L);
 		distinctiveness(costs_RR, dsi_RR.d_min, dsi_RR.d_max, height, width, distinctiveness_R);
@@ -1730,7 +1730,7 @@ void fn_confidence_measure
 	if (use(choices, "samm") == true)
 	{
 		Mat samm;
-		cout  << " - confidence measure: self aware matching measure (SAMM)" << endl;
+	//cout  << " - confidence measure: self aware matching measure (SAMM)" << endl;
 		self_aware_matching(dsi_LR.values, dsi_LL.values, c1_idx, dsi_LL.d_min, dsi_LL.d_max, height, width, samm);
 		_confidences.push_back(samm);
 		methods.push_back("samm");
@@ -1740,7 +1740,7 @@ void fn_confidence_measure
 	if (use(choices, "db") == true)
 	{
 		Mat db;
-		cout  << " - confidence measure: distance to border (DB)" << endl;
+	//cout  << " - confidence measure: distance to border (DB)" << endl;
 		distance_to_border(disparity_L2R, db);
 		_confidences.push_back(db);
 		methods.push_back("db");
@@ -1750,7 +1750,7 @@ void fn_confidence_measure
 	if (use(choices, "dbl") == true)
 	{
 		Mat dbl;
-		cout  << " - confidence measure: distance to left border (DBL)" << endl;
+	//cout  << " - confidence measure: distance to left border (DBL)" << endl;
 		distance_to_left_border(disparity_L2R, dsi_LL.d_max, dbl);
 		_confidences.push_back(dbl);
 		methods.push_back("dbl");
@@ -1760,7 +1760,7 @@ void fn_confidence_measure
 	if (use(choices, "dtd") == true)
 	{
 		Mat dtd;
-		cout  << " - confidence measure: distance to discontinuity (DTD)" << endl;
+	//cout  << " - confidence measure: distance to discontinuity (DTD)" << endl;
 		compute_DD(disparity_L2R, params.DD_max_lowThreshold, params.DD_ratio, params.DD_radius, dtd);
 		_confidences.push_back(dtd);
 		methods.push_back("dtd");
@@ -1770,7 +1770,7 @@ void fn_confidence_measure
 	if (use(choices, "dte") == true)
 	{
 		Mat dte;
-		cout  << " - confidence measure: distance to edge (DTE)" << endl;
+	//cout  << " - confidence measure: distance to edge (DTE)" << endl;
 		compute_DD(image_L, params.DD_max_lowThreshold, params.DD_ratio, params.DD_radius, dte);
 		_confidences.push_back(dte);
 		methods.push_back("dte");
@@ -1780,7 +1780,7 @@ void fn_confidence_measure
 	if (use(choices, "med") == true)
 	{
 		Mat med;
-		cout  << " - confidence measure: difference with median (MED)" << endl;
+	//cout  << " - confidence measure: difference with median (MED)" << endl;
 		difference_with_median(disparity_L2R, params.med_radius, bad, height, width, med);
 		_confidences.push_back(med);
 		methods.push_back("med");
@@ -1790,7 +1790,7 @@ void fn_confidence_measure
 	if (use(choices, "lmn") == true)
 	{
 		Mat lmn;
-		cout  << " - confidence measure: local minima in neighborhood (LMN)" << endl;
+	//cout  << " - confidence measure: local minima in neighborhood (LMN)" << endl;
 		local_minima_in_neighborhood(local_minima, c1_idx, params.lmn_radius, height, width, lmn);
 		_confidences.push_back(lmn);
 		methods.push_back("lmn");
@@ -1800,7 +1800,7 @@ void fn_confidence_measure
 	if (use(choices, "da") == true)
 	{
 		Mat da;
-		cout  << " - confidence measure: disparity agreement (DA)" << endl;
+	//cout  << " - confidence measure: disparity agreement (DA)" << endl;
 		disparity_agreement(disparity_L2R, height, width, params.da_radius, da);
 		_confidences.push_back(da);
 		methods.push_back("da");
@@ -1810,7 +1810,7 @@ void fn_confidence_measure
 	if (use(choices, "ds") == true)
 	{
 		Mat ds;
-		cout  << " - confidence measure: disparity scattering (DS)" << endl;
+	//cout  << " - confidence measure: disparity scattering (DS)" << endl;
 		disparity_scattering(disparity_L2R, height, width, params.ds_radius, ds);
 		_confidences.push_back(ds);
 		methods.push_back("ds");

@@ -112,6 +112,8 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
         goto fail;
     }
 
+    //cout << width << " " << height << " " << dmin << " " << dmax << endl;
+
     #if NPY_API_VERSION >= 0x0000000c
         _pconfidences = PyArray_FROM_OTF(_pconfidencesarg, NPY_FLOAT32, NPY_ARRAY_INOUT_ARRAY2);
     #else

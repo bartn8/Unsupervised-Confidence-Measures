@@ -255,21 +255,21 @@ void compute_base_costs
 	int num_disp = costs.size();
 
 	//compute the first minimum.
-	cout << " - compute the first minimum..." << endl;
+	//cout << " - compute the first minimum..." << endl;
 	minimum(costs, c1, c1_idx); 
 
 	//compute the sum of matching costs.
-	cout << " - compute the sum of matching costs..." << endl;
+	//cout << " - compute the sum of matching costs..." << endl;
 	sum(costs, c_sum);
 
 	//index to all the local minima
-	cout << " - index to all the local minima..." << endl; 
+	//cout << " - index to all the local minima..." << endl; 
 
 	inflections(costs, local_minima);
 	local_minima.getMatVector(_inflections);
 
 	//compute the second minimum.
-	cout << " - compute the second minimum..." << endl;
+	//cout << " - compute the second minimum..." << endl;
 	for (int row = 0; row < height; row++)
 	{
 		uchar* c1_idx_ptr = c1_idx.getMat().ptr<uchar>(row);
@@ -284,7 +284,7 @@ void compute_base_costs
 	minimum(costs, c2, c2_idx);
 
 	//compute the second 'local' minimum.
-	cout << " - compute the second 'local' minimum..." << endl;
+	//cout << " - compute the second 'local' minimum..." << endl;
 	for (int row = 0; row < height; row++)
 	{
 		for (int col = 0; col < width; col++)
@@ -303,7 +303,7 @@ void compute_base_costs
 	Mat _NOI = NOI.getMat();
 
 	//compute the number of inflection (NOI) points.
-	cout << " - compute the number of inflection(NOI) points..." << endl;
+	//cout << " - compute the number of inflection(NOI) points..." << endl;
 	for (int row = 0; row < height; row++)
 	{
 		for (int col = 0; col < width; col++)
