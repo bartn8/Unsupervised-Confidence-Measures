@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <ctime>
 
 #include <smmintrin.h> // intrinsics
 #include <emmintrin.h>
@@ -15,6 +16,7 @@
 #include "generate_samples.hpp"
 #include "confidence_measures.hpp"
 #include "DSI.hpp"
+// #include "evaluation.hpp"
 
 
 //https://www.techiedelight.com/split-string-cpp-using-delimiter/
@@ -46,6 +48,7 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
     uint32 dmin, dmax;
     float32 threshold; 
     const char *choices_positive_ptr, *choices_negative_ptr;
+    int log = 0;
 
     //Uso funzione dissimilarità (Census)
     bool similarity = 0;
@@ -59,6 +62,8 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
     std::vector<cv::Mat> confidences;
     std::vector<std::string> confidence_names; 
     cv::Mat positive_samples, negative_samples;
+    std::time_t start_ms, stop_ms;
+    // Mat rgb;
 
     //Output
     float32 *psamples;
@@ -82,7 +87,7 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
 
     //pconfidences, nconfidences, left, right, displ, dispr, dsilr, dsill, dsirr, bad, width, height, dmin, dmax, threshold, choices_pos, choices_neg
 
-    if (!PyArg_ParseTuple(args, "O!O!O!O!O!O!O!O!O!IIIIIfss", 
+    if (!PyArg_ParseTuple(args, "O!O!O!O!O!O!O!O!O!IIIIIfss|p", 
         &PyArray_Type, &_pconfidencesarg,
         &PyArray_Type, &_nconfidencesarg,
         &PyArray_Type, &_leftarg,
@@ -92,7 +97,7 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
         &PyArray_Type, &_dsilrarg,
         &PyArray_Type, &_dsillarg,
         &PyArray_Type, &_dsirrarg,
-        &bad, &width, &height, &dmin, &dmax, &threshold, &choices_positive_ptr, &choices_negative_ptr)) return NULL;
+        &bad, &width, &height, &dmin, &dmax, &threshold, &choices_positive_ptr, &choices_negative_ptr, &log)) return NULL;
 
     if(dmin >= dmax){
         PyErr_Format(PyExc_TypeError,
@@ -172,10 +177,33 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
     std::sort(choices.begin(), choices.end());
     choices.erase(std::unique(choices.begin(), choices.end()), choices.end());
     
+    start_ms = std::time(nullptr);
+
     fn_confidence_measure(gray_0, gray_1, disparity_L2R, disparity_R2L, dsi_LR, dsi_LL, dsi_RR, bad, choices, confidence_names, confidences);
+
+    stop_ms = std::time(nullptr);
+    
+    if(log)
+        std::cout << "fn_confidence_measure (s): " << (stop_ms-start_ms) << endl;
+
+    start_ms = std::time(nullptr);
+
     generate_training_samples(confidences, disparity_L2R, threshold, confidence_names, choices_positive, choices_negative, positive_samples, negative_samples);
 
+    stop_ms = std::time(nullptr);
+
+    if(log)
+        std::cout << "generate_training_samples (s): " << (stop_ms-start_ms) << endl;
     
+    // samples_on_image(gray_0, positive_samples, negative_samples, rgb);
+	// imwrite("myoutput/positive_samples.png", positive_samples);
+	// imwrite("myoutput/negative_samples.png", negative_samples);
+	// imwrite("myoutput/rgb_samples.png", rgb);
+	// write_disparity_map(disparity_L2R, positive_samples, "myoutput/disparity_positive.png");
+	// write_disparity_map(disparity_L2R, negative_samples, "myoutput/disparity_negative.png");
+	// write_disparity_map(disparity_L2R, Mat(), "myoutput/disparity.png");
+
+
     //Pass confidences
     for(uint32 y = 0; y < height; y++){
         for(uint32 x = 0; x < width; x++){

@@ -45,6 +45,7 @@ dsiLRAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
 #dsiLLAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
 #dsiRRAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
 
+#dsiLRAgg = dsiLR
 aggregate_SSE(left, dsiLR, dsiLRAgg, w, h, dispCount, 7, 17, 0.25, 50)
 #aggregate_SSE(left, dsiLL, dsiLLAgg, w, h, dispCount, 7, 17, 0.25, 50)
 #aggregate_SSE(right, dsiRR, dsiRRAgg, w, h, dispCount, 7, 17, 0.25, 50)
@@ -63,11 +64,15 @@ dispImgRightfiltered = np.zeros((h,w), dtype=np.float32)
 median3x3_SSE(dispImgLeft, dispImgLeftfiltered, w, h)
 median3x3_SSE(dispImgRight, dispImgRightfiltered, w, h)
 
+dispImgLeftfiltered = np.clip(dispImgLeftfiltered,0,255)
+dispImgRightfiltered = np.clip(dispImgRightfiltered,0,255)
+
 stopTimeSGM = time.time()
 
 bad = 3
 threshold = float(0.3)
 
+dsiLR = np.moveaxis(dsiLR, -1 , 0)
 dsiLRAgg = np.moveaxis(dsiLRAgg, -1, 0)
 dsiLL = np.moveaxis(dsiLL, -1, 0)
 dsiRR = np.moveaxis(dsiRR, -1, 0)
@@ -78,7 +83,8 @@ nconf = np.zeros((h,w), dtype=np.float32)
 startTimeUCM = time.time()
 
 confidence_measure(pconf, nconf, left, right, dispImgLeftfiltered, dispImgRightfiltered,
- dsiLRAgg.astype(np.float32), dsiLL.astype(np.float32), dsiRR.astype(np.float32), bad, w, h, int(0), int(255), threshold, "lrc uc dbl apkr med wmn", "lrc uc apkr wmn")
+ dsiLRAgg.astype(np.float32), dsiLL.astype(np.float32), dsiRR.astype(np.float32),
+  bad, w, h, int(0), int(128), threshold, "lrc uc dbl apkr med wmn", "lrc uc apkr wmn", True)
 
 stopTimeUCM = time.time()
 
@@ -92,7 +98,12 @@ cv2.imwrite("myoutput/disp5.png", dispImgRightfiltered.astype(np.uint8))
 cv2.imwrite("myoutput/positive_samples.png", pconf.astype(np.uint8))
 cv2.imwrite("myoutput/negative_samples.png", nconf.astype(np.uint8))
 
+leftc[pconf >0, 0] = 0
 leftc[pconf >0, 1] = 255
+leftc[pconf >0, 2] = 0
+
+leftc[nconf >0, 0] = 0
+leftc[nconf >0, 1] = 0
 leftc[nconf >0, 2] = 255
 
 cv2.imwrite("myoutput/rgb_samples.png", leftc.astype(np.uint8))

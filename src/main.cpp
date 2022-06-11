@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <argparse.hpp>
 #include <iterator>
+#include <ctime>
 
 bool exists(string filePath)
 {
@@ -27,6 +28,8 @@ int main(int argc, const char** argv)
 {
 	cout << string( 3, '\n' ) << " ***** BMVC 2017 - Learning confidence measures in the wild *****" << endl;
 	cout << "   (F. Tosi, M. Poggi, A. Tonioni, L. Di Stefano, S. Mattoccia)" << string( 3, '\n' );
+
+	std::time_t start_ms, stop_ms;
 
 	/***************************************************************************************************/
 	/*
@@ -116,9 +119,14 @@ int main(int argc, const char** argv)
 	cout << " - generate dsi_RR..." << endl;
 	_DSI dsi_RR = SHD_box_filtering(gray_1, gray_1, (d_min - d_max) / 2, (d_max - d_min) / 2, census, boxfilter);
 
+	start_ms = std::time(nullptr);
 
 	//compute confidence measures
 	fn_confidence_measure(gray_0, gray_1, dsi_LR, dsi_LL, dsi_RR, bad, choices, disparity_L2R, confidence_names, confidences);
+
+	stop_ms = std::time(nullptr);
+
+	std::cout << "fn_confidence_measure (s): " << (stop_ms-start_ms) << endl;
 
 	/***************************************************************************************************/
 	/*
@@ -133,8 +141,15 @@ int main(int argc, const char** argv)
 	float threshold = (t.empty()) ? 0.4 : strtof((t).c_str(),0);
 
 	Mat positive_samples, negative_samples;
+
+	start_ms = std::time(nullptr);
+
 	generate_training_samples(confidences, disparity_L2R, threshold, confidence_names, choices_positive, choices_negative,
     	positive_samples, negative_samples);
+
+	stop_ms = std::time(nullptr);
+
+	std::cout << "generate_training_samples (s): " << (stop_ms-start_ms) << endl;
 
 	/***************************************************************************************************/
 	/*
