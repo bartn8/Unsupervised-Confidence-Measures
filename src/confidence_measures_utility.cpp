@@ -189,23 +189,23 @@ void inflections
 			{
 				float central = _costs[d].ptr<float>(row)[col];
 
-				if (central >= 0 && d - 1 >= 0 && d+1 < num_disp)
+				if (central >= 0)
 				{
-					if (d == 0)
+					if (d == 0 && d + 1 < num_disp)
 					{
 						float right = _costs[d + 1].ptr<float>(row)[col];
 
 						if (central < right && right >= 0)
 							_local_minima[d].ptr<uchar>(row)[col] = 1;
 					}
-					else if (d == num_disp - 1)
+					else if (d == num_disp - 1 && d - 1 >= 0)
 					{
 						float left = _costs[d - 1].ptr<float>(row)[col];
 
 						if (central < left && left>=0)
 							_local_minima[d].ptr<uchar>(row)[col] = 1;
 					}
-					else
+					else if (d - 1 >= 0 && d+1 < num_disp)
 					{
 						float right = _costs[d + 1].ptr<float>(row)[col];
 						float left = _costs[d - 1].ptr<float>(row)[col];
