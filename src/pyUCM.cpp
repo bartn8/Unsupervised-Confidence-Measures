@@ -162,8 +162,9 @@ static PyObject *_confidence_measure(PyObject *self, PyObject *args)
     disparity_L2R = cv::Mat(height, width, CV_32F, (float32*) PyArray_DATA(_dleft));
     disparity_R2L = cv::Mat(height, width, CV_32F, (float32*) PyArray_DATA(_dright));
     dsi_LR = DSI_init_frombuffer(height, width, dmin, dmax, similarity, (float32*) PyArray_DATA(_dsilr));
-    dsi_LL = DSI_init_frombuffer(height, width, dmin, dmax, similarity, (float32*) PyArray_DATA(_dsill));
-    dsi_RR = DSI_init_frombuffer(height, width, dmin, dmax, similarity, (float32*) PyArray_DATA(_dsirr));
+    //TODO: different parameters for DSI LL and DSI RR
+    dsi_LL = DSI_init_frombuffer(height, width, int(dmin/2), int(dmax/2), similarity, (float32*) PyArray_DATA(_dsill));
+    dsi_RR = DSI_init_frombuffer(height, width, int(dmin/2), int(dmax/2), similarity, (float32*) PyArray_DATA(_dsirr));
 
     //Choices parsing
     choices_negative_str = std::string(choices_negative_ptr);

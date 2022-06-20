@@ -212,7 +212,8 @@ void average_peak_ratio
 	    _c2m_idx = c2m_idx.getMat(),
 	    _confidence_map = confidence_map.getMat();
 
-	vector<Mat> _costs; costs.getMatVector(_costs);
+	vector<Mat> _costs; 
+	costs.getMatVector(_costs);
 
 	for (int row = 0; row < height; row++)
 	{
@@ -506,9 +507,9 @@ void winner_margin
 		{
 			float c_1 = c1_ptr[col];
 			float c_2m = c2m_ptr[col];
-			float c_sum = c_sum_ptr[col];
+			float c__sum = c_sum_ptr[col];
 
-			if (c_sum > 0)confidence_map_ptr[col] = (c_2m - c_1) / c_sum;
+			if (c__sum > 0)confidence_map_ptr[col] = (c_2m - c_1) / c__sum;
 			else confidence_map_ptr[col] = 0;
 		}
 	}

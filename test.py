@@ -23,13 +23,13 @@ right = cv2.cvtColor(rightc, cv2.COLOR_BGR2GRAY)
 
 h,w = left.shape[:2]
 h,w = int(h), int(w)
-dispCount = int(256)
+dispCount = int(128)
 
 startTimeSGM = time.time()
 
 dsiLR = np.zeros((h,w,dispCount), dtype=np.uint16)
-dsiLL = np.zeros((h,w,dispCount), dtype=np.uint16)
-dsiRR = np.zeros((h,w,dispCount), dtype=np.uint16)
+dsiLL = np.zeros((h,w,dispCount//2), dtype=np.uint16)
+dsiRR = np.zeros((h,w,dispCount//2), dtype=np.uint16)
 
 leftCensus = np.zeros(left.shape, dtype=np.uint32)
 rightCensus = np.zeros(left.shape, dtype=np.uint32)
@@ -38,8 +38,8 @@ census5x5_SSE(left, leftCensus, w, h)
 census5x5_SSE(right, rightCensus, w, h)
 
 costMeasureCensus5x5_xyd_SSE(leftCensus, rightCensus, dsiLR, w, h, dispCount, 4)
-costMeasureCensus5x5_xyd_SSE(leftCensus, leftCensus, dsiLL, w, h, dispCount, 4)
-costMeasureCensus5x5_xyd_SSE(rightCensus, rightCensus, dsiRR, w, h, dispCount, 4)
+costMeasureCensus5x5_xyd_SSE(leftCensus, leftCensus, dsiLL, w, h, dispCount//2, 4)
+costMeasureCensus5x5_xyd_SSE(rightCensus, rightCensus, dsiRR, w, h, dispCount//2, 4)
 
 dsiLRAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
 #dsiLLAgg = np.zeros((h,w,dispCount), dtype=np.uint16)
@@ -84,7 +84,7 @@ startTimeUCM = time.time()
 
 confidence_measure(pconf, nconf, left, right, dispImgLeftfiltered, dispImgRightfiltered,
  dsiLRAgg.astype(np.float32), dsiLL.astype(np.float32), dsiRR.astype(np.float32),
-  bad, w, h, int(0), int(128), threshold, "lrc uc dbl apkr med wmn", "lrc uc apkr wmn", True)
+  bad, w, h, int(0), int(dispCount), threshold, "lrc uc dbl apkr med wmn", "lrc uc apkr wmn", True)
 
 stopTimeUCM = time.time()
 
