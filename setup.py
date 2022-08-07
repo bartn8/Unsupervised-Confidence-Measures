@@ -1,6 +1,7 @@
 from setuptools import setup, Extension
 import numpy
 
+conda_envs_path = "/home/luca/miniconda3/envs"
 conda_env = "vpptf"
 
 # Common flags for both release and debug builds.
@@ -9,9 +10,9 @@ extra_link_args = []
 
 module_pyUCM = Extension('pyUCM',
                     sources = ['src/pyUCM.cpp', 'src/confidence_measures_utility.cpp', 'src/confidence_measures.cpp', 'src/DSI.cpp', 'src/box_filter.cpp', 'src/generate_samples.cpp', 'src/sort.cpp', 'src/evaluation.cpp'],
-                    include_dirs=[numpy.get_include(), f'/home/luca/miniconda3/envs/{conda_env}/include/opencv4', 'include'],
+                    include_dirs=[numpy.get_include(), f'{conda_envs_path}/{conda_env}/include/opencv4', 'include'],
                     libraries = ['opencv_core', 'opencv_imgproc', 'opencv_imgcodecs'],
-                    library_dirs = [f'/home/luca/miniconda3/envs/{conda_env}/lib'],
+                    library_dirs = [f'{conda_envs_path}/{conda_env}/lib'],
                     extra_compile_args=extra_compile_args,
                     extra_link_args=extra_link_args,
                     )
